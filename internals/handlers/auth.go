@@ -33,7 +33,12 @@ func (h *AuthHandler) Register(c *fiber.Ctx) error {
 	if err := h.validate.Struct(&req); err != nil {
 		return models.Error(c, fiber.StatusBadRequest, err.Error())
 	}
-	return models.Success(c, fiber.StatusOK, "register success", req)
+
+	user, status, err := h.authService.CreateUser(req)
+	if err != nil {
+		return models.Error(c, status, err.Error())
+	}
+	return models.Success(c, status, "register success", user)
 }
 
 func (h *AuthHandler) ForgotPassword(c *fiber.Ctx) error {

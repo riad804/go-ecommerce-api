@@ -2,7 +2,6 @@ package app
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cache"
@@ -37,7 +36,7 @@ func NewServer(config *config.Config, redisClient *redis.RedisClient, mongoConn 
 	app.Use(compress.New())
 
 	if config.Server.RateLimit.Enabled {
-		app.Use(middlewares.LimiterMiddleware(redisClient.Client, config.Server.RateLimit.RateLimit, time.Minute*time.Duration(config.Server.RateLimit.RateLimitWindow.Seconds())))
+		app.Use(middlewares.LimiterMiddleware(redisClient.Client, config.Server.RateLimit.RateLimit, config.Server.RateLimit.RateLimitWindow))
 	}
 
 	routes := routes.NewRoutes(config, app, mongoConn)

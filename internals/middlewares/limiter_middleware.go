@@ -10,6 +10,7 @@ import (
 
 func LimiterMiddleware(client *redis.Client, limit int, window time.Duration) fiber.Handler {
 	return func(c *fiber.Ctx) error {
+		print(window.Minutes())
 		ctx := context.Background() // Redis context
 		ip := c.IP()
 		key := "rate_limit:" + ip

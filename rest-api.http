@@ -5,8 +5,8 @@ POST {{baseUrl}}/register
 Content-Type: application/json
 
 {
-  "name": "Alice Example",
-  "email": "alice@example.com",
-  "password": "StrongP@ssw0rd",
+  "name": "Md Riadul Islam",
+  "email": "dev.riadul1@gmail.com",
+  "password": "dev.Riad2654",
   "phone": "+8801764707804"
 }
