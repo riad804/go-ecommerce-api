@@ -1,0 +1,22 @@
+server:
+  name: "Go E-commerce API Server"
+  port: 8080
+  host: "localhost"
+  rate_limit:
+    enabled: true
+    rate_limit: 5
+    rate_limit_window: 1m
+
+token:
+  symmetric_key: "kbb3ObClKKHAZClXy7z3KfBaqJLey2ydGLfV2heOUz8="
+
+redis:
+  host: "localhost"
+  port: 6379
+  password: ""
+  db: 0
+
+mongodb:
+  uri: "mongodb://localhost:27017"
+  database: "ecommerce"
+  timeout: 10s
