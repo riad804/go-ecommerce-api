@@ -42,6 +42,7 @@ func NewServer(config *config.Config, redisClient *redis.RedisClient, mongoConn 
 
 	routes := routes.NewRoutes(config, app, mongoConn, distributor)
 	routes.NewAuthRoutes()
+	routes.NewUserRoutes()
 
 	return &Server{
 		config: config,

@@ -38,7 +38,11 @@ func NewMongoDB(cfg *config.Config) (*MongoConnection, error) {
 
 	err = models.EnsureUserIndexes(db.Collection(repositories.USERS))
 	if err != nil {
-		log.Fatal("User indexing failed:", err)
+		log.Fatal("Users indexing failed:", err)
+	}
+	err = models.EnsureProductIndexes(db.Collection("products"))
+	if err != nil {
+		log.Fatal("Products indexing failed:", err)
 	}
 
 	return &MongoConnection{

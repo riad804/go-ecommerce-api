@@ -58,7 +58,7 @@ func (s *AuthService) CreateUser(req models.RegisterRequest) (*models.User, int,
 	if err != nil {
 		return nil, fiber.StatusInternalServerError, err
 	}
-	return result, fiber.StatusAccepted, nil
+	return result, fiber.StatusCreated, nil
 }
 
 func (s *AuthService) FindUser(req models.LoginRequest) (*map[string]any, int, error) {
@@ -167,5 +167,5 @@ func (s *AuthService) ResetPassword(req models.ResetPasswordRequest) (*models.Us
 	if err != nil {
 		return nil, fiber.StatusInternalServerError, fmt.Errorf("User updating failed")
 	}
-	return user, fiber.StatusOK, nil
+	return user, fiber.StatusCreated, nil
 }

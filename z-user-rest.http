@@ -1,0 +1,72 @@
+@baseUrl = http://localhost:8080/api/v1
+@accessToken = Bearer v2.local.-izo-ITmCX98_GWpnkaNq5kZetpSSAyTbUarBLnbEERKIGyCkxHWYRTCT5jJMGjuI1DuMVhbKcr2rnZFZqNsNZhqzQCai-Qr7nobzT_LzSG3x8Z9KXAPgcDTfsDDaS0sQaVh11R0XLnJKJyLmhQ-6EF05Y55IJybDqucp3FYMcQpF1f-p0UYi4jkrmspvynEhCR8uiayxd_OorKDl-wq7YMqHoGkCCNd34dAmbwZOLV2v7QiZ_46SRZyn0pP8XYLoNQt5gjujf7tr2X01HUdmGyRajjV109K7PSBaMaeN268imy0rSg-MQQBa9wGhaC0PnXP0Qo.bnVsbA
+
+### Register User
+POST {{baseUrl}}/register
+Content-Type: application/json
+
+{
+  "name": "Md Riadul Islam",
+  "email": "dev.riadul@gmail.com",
+  "password": "dev.Riad2654",
+  "phone": "+8801764707804"
+}
+
+### Login User
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "dev.riadul@gmail.com",
+  "password": "dev.Riad2654"
+}
+
+### Forgot password
+POST {{baseUrl}}/forgot-password
+Content-Type: application/json
+
+{
+  "email": "dev.riadul@gmail.com"
+}
+
+
+### Verify OTP
+POST {{baseUrl}}/verify-otp
+Content-Type: application/json
+
+{
+  "email": "dev.riadul@gmail.com",
+  "otp": "6760"
+}
+
+### Reset Password
+POST {{baseUrl}}/reset-password
+Content-Type: application/json
+
+{
+  "email": "dev.riadul@gmail.com",
+  "password": "dev.Riad2654"
+}
+
+### Get all users
+GET {{baseUrl}}/users/
+Authorization: {{accessToken}}
+Content-Type: application/json
+
+
+### Get user by id
+GET {{baseUrl}}/users/686bf9aec7fc20cd2f66987c
+Authorization: {{accessToken}}
+Content-Type: application/json
+
+
+### update user by id
+PUT {{baseUrl}}/users/686bf9aec7fc20cd2f66987c
+Authorization: {{accessToken}}
+Content-Type: application/json
+
+{
+  "name": "Riadul Islam",
+  "email": "dev.riadul@gmail.com",
+  "phone": "+8801764707804"
+}
