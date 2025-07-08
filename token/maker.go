@@ -3,6 +3,9 @@ package token
 import "time"
 
 type Maker interface {
-	CreateToken(email string, duration time.Duration) (*Payload, error)
-	VerifyToken(token string) (*Payload, error)
+	CreateAccessToken(email string, isAdmin bool, duration time.Duration) (*Payload, error)
+	VerifyAccessToken(token string) (*Payload, error)
+
+	CreateRefreshToken(email string, isAdmin bool, duration time.Duration) (*Payload, error)
+	VerifyRefreshToken(token string) (*Payload, error)
 }

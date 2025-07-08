@@ -13,6 +13,7 @@ import (
 	"github.com/riad804/go_ecommerce_api/internals/routes"
 	"github.com/riad804/go_ecommerce_api/pkg/database"
 	"github.com/riad804/go_ecommerce_api/pkg/redis"
+	"github.com/riad804/go_ecommerce_api/workers"
 )
 
 type Server struct {
@@ -21,7 +22,7 @@ type Server struct {
 	Mongo  *database.MongoConnection
 }
 
-func NewServer(config *config.Config, redisClient *redis.RedisClient, mongoConn *database.MongoConnection) *Server {
+func NewServer(config *config.Config, redisClient *redis.RedisClient, mongoConn *database.MongoConnection, distributor workers.TaskDistributor) *Server {
 
 	app := fiber.New(fiber.Config{
 		Prefork:       true,
@@ -39,7 +40,7 @@ func NewServer(config *config.Config, redisClient *redis.RedisClient, mongoConn 
 		app.Use(middlewares.LimiterMiddleware(redisClient.Client, config.Server.RateLimit.RateLimit, config.Server.RateLimit.RateLimitWindow))
 	}
 
-	routes := routes.NewRoutes(config, app, mongoConn)
+	routes := routes.NewRoutes(config, app, mongoConn, distributor)
 	routes.NewAuthRoutes()
 
 	return &Server{

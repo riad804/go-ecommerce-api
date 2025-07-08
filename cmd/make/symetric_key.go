@@ -15,5 +15,5 @@ func main() {
 	}
 
 	encodedKey := base64.StdEncoding.EncodeToString(key)
-	fmt.Println("Generated Symmetric Key:", encodedKey)
+	fmt.Println("Symmetric Key:", encodedKey)
 }

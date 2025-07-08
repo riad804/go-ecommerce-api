@@ -8,14 +8,13 @@ import (
 
 func (routes *Routes) NewAuthRoutes() {
 	userRepo := repositories.NewUserRepository(routes.Mongo.Database)
-	authService := service.NewAuthService(*routes.tokenMaker, userRepo)
+	authService := service.NewAuthService(*routes.tokenMaker, userRepo, routes.cfg, routes.distributor)
 	authHandler := handlers.NewAuthHandler(authService, routes.Validator)
 
-	user := routes.api.Group("/")
-
-	user.Post("/login", authHandler.Login)
-	user.Post("/register", authHandler.Register)
-	user.Post("/forgot-password", authHandler.ForgotPassword)
-	user.Post("/verify-otp", authHandler.VerifyOtp)
-	user.Post("/reset-password", authHandler.ResetPassword)
+	public := routes.api.Group("/")
+	public.Post("/login", authHandler.Login)
+	public.Post("/register", authHandler.Register)
+	public.Post("/forgot-password", authHandler.ForgotPassword)
+	public.Post("/verify-otp", authHandler.VerifyOtp)
+	public.Post("/reset-password", authHandler.ResetPassword)
 }

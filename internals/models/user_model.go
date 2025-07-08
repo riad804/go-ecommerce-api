@@ -21,13 +21,14 @@ type User struct {
 	PostalCode              *string            `bson:"postal_code,omitempty" json:"postal_code,omitempty"`
 	Phone                   string             `bson:"phone" json:"phone" validate:"required"`
 	IsAdmin                 bool               `bson:"is_admin" json:"is_admin"`
-	ResetPasswordOtp        *int               `bson:"reset_password_otp,omitempty" json:"-"`
-	ResetPasswordOtpExpires *time.Time         `bson:"reset_password_otp_expires,omitempty" json:"-"`
-	Wishlist                *[]Wishlist        `bson:"wishlist,omitempty" json:"wishlist,omitempty"`
+	ResetPasswordOtp        *int64             `bson:"reset_password_otp,omitempty" json:"reset_password_otp"`
+	ResetPasswordOtpExpires *time.Time         `bson:"reset_password_otp_expires,omitempty" json:"reset_password_otp_expires"`
+	Wishlist                []Wishlist         `bson:"wishlist,omitempty" json:"wishlist,omitempty"`
+	CreatedAt               time.Time          `bson:"created_at" json:"created_at"`
+	UpdatedAt               time.Time          `bson:"updated_at" json:"updated_at"`
 }
 
 type Wishlist struct {
-	ID           primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	ProductID    primitive.ObjectID `bson:"product_id" json:"product_id" validate:"required"`
 	ProductName  string             `bson:"product_name" json:"product_name" validate:"required"`
 	ProductImage string             `bson:"product_image" json:"product_image" validate:"required"`
@@ -48,4 +49,23 @@ type RegisterRequest struct {
 	Email    string `json:"email" validate:"required,email"`
 	Password string `json:"password" validate:"required,min=8,password"`
 	Phone    string `json:"phone" validate:"required,e164"`
+}
+
+type LoginRequest struct {
+	Email    string `json:"email" validate:"required,email"`
+	Password string `json:"password" validate:"required,min=8,password"`
+}
+
+type ForgotPassRequest struct {
+	Email string `json:"email" validate:"required,email"`
+}
+
+type VerifyOtpRequest struct {
+	Email string `json:"email" validate:"required,email"`
+	OTP   string `json:"otp" validate:"required"`
+}
+
+type ResetPasswordRequest struct {
+	Email    string `json:"email" validate:"required,email"`
+	Password string `json:"password" validate:"required,min=8,password"`
 }

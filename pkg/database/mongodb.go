@@ -6,6 +6,8 @@ import (
 	"log"
 
 	"github.com/riad804/go_ecommerce_api/internals/config"
+	"github.com/riad804/go_ecommerce_api/internals/models"
+	"github.com/riad804/go_ecommerce_api/internals/repositories"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -32,8 +34,15 @@ func NewMongoDB(cfg *config.Config) (*MongoConnection, error) {
 
 	fmt.Println("✅ Connected to MongoDB!")
 
+	db := client.Database(cfg.MongoDB.Database)
+
+	err = models.EnsureUserIndexes(db.Collection(repositories.USERS))
+	if err != nil {
+		log.Fatal("User indexing failed:", err)
+	}
+
 	return &MongoConnection{
 		Client:   client,
-		Database: client.Database(cfg.MongoDB.Database),
+		Database: db,
 	}, nil
 }

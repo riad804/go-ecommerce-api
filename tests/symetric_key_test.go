@@ -8,8 +8,8 @@ import (
 )
 
 func TestSymmetricKey(t *testing.T) {
-	validKeyBase64 := "kbb3ObClKKHAZClXy7z3KfBaqJLey2ydGLfV2heOUz8="
-	shortKeyBase64 := "c2hvcnRrZXk="
+	accessKeyBase64 := "u+JGOLu6JG7q8apsVV1UXe74agrSHqVCJIeD/ad3tSQ="
+	refreshKeyBase64 := "GFTR4lalgqPCUKpkuAKC7VUwE6yM0d4Yqe3Fg3hRn9I="
 	invalidBase64 := "!@#$$%"
 
 	tests := []struct {
@@ -17,8 +17,8 @@ func TestSymmetricKey(t *testing.T) {
 		base64Key string
 		wantErr   bool
 	}{
-		{"valid key", validKeyBase64, false},
-		{"too short", shortKeyBase64, true},
+		{"access key", accessKeyBase64, false},
+		{"refresh key", refreshKeyBase64, false},
 		{"invalid base64", invalidBase64, true},
 	}
 
@@ -30,7 +30,7 @@ func TestSymmetricKey(t *testing.T) {
 				return
 			}
 			if err == nil {
-				maker, err := token.NewPasetoMaker(tt.base64Key)
+				maker, err := token.NewPasetoMaker(tt.base64Key, tt.base64Key)
 				if (err != nil) != tt.wantErr {
 					t.Errorf("NewPasetoMaker() error = %v, wantErr = %v", err, tt.wantErr)
 				}

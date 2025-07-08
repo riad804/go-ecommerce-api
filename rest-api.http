@@ -6,7 +6,43 @@ Content-Type: application/json
 
 {
   "name": "Md Riadul Islam",
-  "email": "dev.riadul1@gmail.com",
+  "email": "dev.riadul@gmail.com",
   "password": "dev.Riad2654",
   "phone": "+8801764707804"
+}
+
+### Login User
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "dev.riadul@gmail.com",
+  "password": "dev.Riad2654"
+}
+
+### Forgot password
+POST {{baseUrl}}/forgot-password
+Content-Type: application/json
+
+{
+  "email": "dev.riadul@gmail.com"
+}
+
+
+### Verify OTP
+POST {{baseUrl}}/verify-otp
+Content-Type: application/json
+
+{
+  "email": "dev.riadul@gmail.com",
+  "otp": "6760"
+}
+
+### Reset Password
+POST {{baseUrl}}/reset-password
+Content-Type: application/json
+
+{
+  "email": "dev.riadul@gmail.com",
+  "password": "dev.Riad2654"
 }

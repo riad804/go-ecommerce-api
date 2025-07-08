@@ -11,6 +11,14 @@ type Config struct {
 	Redis   RedisConfig   `mapstructure:"redis"`
 	Token   TokenConfig   `mapstructure:"token"`
 	MongoDB MongoDBConfig `mapstructure:"mongodb"`
+	Email   EmailConfig   `mapstructure:"email"`
+}
+
+type EmailConfig struct {
+	Name       string        `mapstructure:"sender_name"`
+	Address    string        `mapstructure:"sender_address"`
+	Password   string        `mapstructure:"sender_password"`
+	Expiration time.Duration `mapstructure:"exp_duration"`
 }
 
 type MongoDBConfig struct {
@@ -20,7 +28,10 @@ type MongoDBConfig struct {
 }
 
 type TokenConfig struct {
-	SymmetricKey string `mapstructure:"symmetric_key"`
+	AccessKey   string        `mapstructure:"access_key"`
+	AccDuration time.Duration `mapstructure:"access_duration"`
+	RefreshKey  string        `mapstructure:"refresh_key"`
+	RefDuration time.Duration `mapstructure:"refresh_duration"`
 }
 
 type ServerConfig struct {
@@ -43,8 +54,8 @@ type RedisConfig struct {
 	DB       int    `mapstructure:"db"`
 }
 
-func LoadConfig() (*Config, error) {
-	viper.AddConfigPath(".")
+func LoadConfig(path string) (*Config, error) {
+	viper.AddConfigPath(path)
 	viper.SetConfigName("config")
 	viper.SetConfigType("yml")
 	var cfg Config
