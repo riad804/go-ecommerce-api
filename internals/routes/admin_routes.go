@@ -9,7 +9,8 @@ import (
 
 func (routes *Routes) NewAdminRoutes() {
 	userRepo := repositories.NewUserRepository(routes.Mongo.Database)
-	adminService := service.NewAdminService(*routes.tokenMaker, userRepo, routes.cfg, routes.distributor)
+	orderRepo := repositories.NewOrderRepository(routes.Mongo.Database)
+	adminService := service.NewAdminService(*routes.tokenMaker, userRepo, orderRepo, routes.cfg, routes.distributor)
 	adminHandler := handlers.NewAdminHandler(adminService, routes.Validator)
 
 	authMiddleware := middlewares.AuthMiddleware(*routes.tokenMaker)

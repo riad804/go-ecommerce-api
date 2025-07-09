@@ -20,6 +20,7 @@ type UserRepository interface {
 	FindByID(id primitive.ObjectID) (*models.User, error)
 	FindByEmail(email string) (*models.User, error)
 	FindAll() ([]models.User, error)
+	CountAll() (int64, error)
 }
 
 type userRepository struct {
@@ -98,18 +99,8 @@ func (u *userRepository) FindAll() ([]models.User, error) {
 	return users, nil
 }
 
-// "$set": bson.M{
-// 	"name":                       user.Name,
-// 	"email":                      user.Email,
-// 	"password":                   user.Password,
-// 	"street":                     user.Street,
-// 	"apartment":                  user.Apartment,
-// 	"city":                       user.City,
-// 	"postal_code":                user.PostalCode,
-// 	"phone":                      user.Phone,
-// 	"is_admin":                   user.IsAdmin,
-// 	"reset_password_otp":         user.ResetPasswordOtp,
-// 	"reset_password_otp_expires": user.ResetPasswordOtpExpires,
-// 	"wishlist":                   user.Wishlist,
-// 	"updated_at":                 time.Now(),
-// },
+func (u *userRepository) CountAll() (int64, error) {
+	collection := u.db.Collection(USERS)
+	count, err := collection.CountDocuments(context.Background(), bson.M{})
+	return count, err
+}
