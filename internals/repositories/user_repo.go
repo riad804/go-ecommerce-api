@@ -21,6 +21,7 @@ type UserRepository interface {
 	FindByEmail(email string) (*models.User, error)
 	FindAll() ([]models.User, error)
 	CountAll() (int64, error)
+	DeleteByID(id primitive.ObjectID) error
 }
 
 type userRepository struct {
@@ -103,4 +104,10 @@ func (u *userRepository) CountAll() (int64, error) {
 	collection := u.db.Collection(USERS)
 	count, err := collection.CountDocuments(context.Background(), bson.M{})
 	return count, err
+}
+
+func (u *userRepository) DeleteByID(id primitive.ObjectID) error {
+	collection := u.db.Collection(USERS)
+	_, err := collection.DeleteOne(context.Background(), bson.M{"_id": id})
+	return err
 }

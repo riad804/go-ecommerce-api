@@ -8,6 +8,7 @@ import (
 
 type CartProduct struct {
 	ID                primitive.ObjectID `bson:"_id,omitempty" json:"id"`
+	UserId            primitive.ObjectID `bson:"user_id,omitempty" json:"user_id"`
 	Quantity          int                `bson:"quantity,omitempty" json:"quantity"`
 	SelectedSize      string             `bson:"selected_size,omitempty" json:"selected_size"`
 	SelectedColor     string             `bson:"selected_color,omitempty" json:"selected_color"`

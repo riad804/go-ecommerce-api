@@ -9,3 +9,8 @@ type Category struct {
 	Image           string             `bson:"image,omitempty" json:"image"`
 	MarkedForDelete bool               `bson:"marked_for_delete,omitempty" json:"marked_for_delete"`
 }
+
+type CategoryCreateRequest struct {
+	Name  string `form:"name" validate:"required"`
+	Color string `form:"color" validate:"required"`
+}

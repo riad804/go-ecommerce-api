@@ -39,7 +39,9 @@ func main() {
 	distributor := workers.NewRedisTaskDistributor(redisOpt)
 	go RunTaskProcessor(config, redisOpt)
 
-	app.NewServer(config, redisClient, mongoConn, distributor).Start()
+	server := app.NewServer(config, redisClient, mongoConn, distributor)
+	server.Start()
+	server.StartCron()
 }
 
 func RunTaskProcessor(config *config.Config, redisOpt asynq.RedisClientOpt) {

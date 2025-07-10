@@ -1,6 +1,8 @@
 package helpers
 
-import "go.mongodb.org/mongo-driver/bson"
+import (
+	"go.mongodb.org/mongo-driver/bson"
+)
 
 func StructToBsonMap(obj interface{}) (bson.M, error) {
 	data, err := bson.Marshal(obj)

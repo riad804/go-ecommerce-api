@@ -11,11 +11,15 @@ import (
 )
 
 const ORDERS = "orders"
+const ORDER_ITEMS = "order_items"
+const CART_PRODUCTS = "cart_products"
 
 type OrderRepository interface {
-	// FindByID()
-	// FindAll()
-	FindByUserId(userId primitive.ObjectID) ([]models.Order, error)
+	FindAllOrders() ([]models.Order, error)
+	FindOrderByUserId(userId primitive.ObjectID) ([]models.Order, error)
+	DeleteOrderByUserId(userId primitive.ObjectID) error
+	DeleteOrderItems(ids []primitive.ObjectID) error
+	DeleteCartByUserId(userId primitive.ObjectID) error
 }
 
 type orderRepository struct {
@@ -28,7 +32,34 @@ func NewOrderRepository(db *mongo.Database) OrderRepository {
 	}
 }
 
-func (r *orderRepository) FindByUserId(userId primitive.ObjectID) ([]models.Order, error) {
+func (r *orderRepository) FindAllOrders() ([]models.Order, error) {
+	collection := r.db.Collection(ORDERS)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	cursor, err := collection.Find(ctx, bson.M{})
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	var orders []models.Order
+	for cursor.Next(ctx) {
+		var order models.Order
+		if err := cursor.Decode(&order); err != nil {
+			return nil, err
+		}
+		orders = append(orders, order)
+	}
+
+	if err := cursor.Err(); err != nil {
+		return nil, err
+	}
+
+	return orders, nil
+}
+
+func (r *orderRepository) FindOrderByUserId(userId primitive.ObjectID) ([]models.Order, error) {
 	collection := r.db.Collection(ORDERS)
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -57,4 +88,25 @@ func (r *orderRepository) FindByUserId(userId primitive.ObjectID) ([]models.Orde
 	}
 
 	return orders, nil
+}
+
+func (r *orderRepository) DeleteOrderByUserId(userId primitive.ObjectID) error {
+	collection := r.db.Collection(ORDERS)
+	filter := bson.M{"user_id": userId}
+	_, err := collection.DeleteMany(context.Background(), filter)
+	return err
+}
+
+func (r *orderRepository) DeleteOrderItems(ids []primitive.ObjectID) error {
+	collection := r.db.Collection(ORDER_ITEMS)
+	filter := bson.M{"_id": bson.M{"$in": ids}}
+	_, err := collection.DeleteMany(context.Background(), filter)
+	return err
+}
+
+func (r *orderRepository) DeleteCartByUserId(userId primitive.ObjectID) error {
+	collection := r.db.Collection(CART_PRODUCTS)
+	filter := bson.M{"user_id": userId}
+	_, err := collection.DeleteMany(context.Background(), filter)
+	return err
 }
