@@ -15,7 +15,8 @@ const ORDER_ITEMS = "order_items"
 const CART_PRODUCTS = "cart_products"
 
 type OrderRepository interface {
-	FindAllOrders() ([]models.Order, error)
+	FindOrdersCount() (*int64, error)
+	FindAllOrders() ([]models.OrderResponse, error)
 	FindOrderByUserId(userId primitive.ObjectID) ([]models.Order, error)
 	DeleteOrderByUserId(userId primitive.ObjectID) error
 	DeleteOrderItems(ids []primitive.ObjectID) error
@@ -32,30 +33,98 @@ func NewOrderRepository(db *mongo.Database) OrderRepository {
 	}
 }
 
-func (r *orderRepository) FindAllOrders() ([]models.Order, error) {
+func (r *orderRepository) FindOrdersCount() (*int64, error) {
+	collection := r.db.Collection(ORDERS)
+	count, err := collection.CountDocuments(context.Background(), bson.M{})
+	return &count, err
+}
+
+func (r *orderRepository) FindAllOrders() ([]models.OrderResponse, error) {
 	collection := r.db.Collection(ORDERS)
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
+	pipeline := mongo.Pipeline{
+		// Join user
+		{{Key: "$lookup", Value: bson.D{
+			{Key: "from", Value: "users"},
+			{Key: "localField", Value: "user_id"},
+			{Key: "foreignField", Value: "_id"},
+			{Key: "as", Value: "user"},
+		}}},
+		{{Key: "$unwind", Value: "$user"}},
 
-	cursor, err := collection.Find(ctx, bson.M{})
+		// Join order_items
+		{{Key: "$lookup", Value: bson.D{
+			{Key: "from", Value: "order_items"},
+			{Key: "localField", Value: "order_items"},
+			{Key: "foreignField", Value: "_id"},
+			{Key: "as", Value: "order_items"},
+		}}},
+
+		// Unwind and join each product inside order_items
+		{{Key: "$unwind", Value: bson.D{
+			{Key: "path", Value: "$order_items"},
+			{Key: "preserveNullAndEmptyArrays", Value: true},
+		}}},
+		{{Key: "$lookup", Value: bson.D{
+			{Key: "from", Value: "products"},
+			{Key: "localField", Value: "order_items.product_id"},
+			{Key: "foreignField", Value: "_id"},
+			{Key: "as", Value: "order_items.product"},
+		}}},
+		{{Key: "$unwind", Value: bson.D{
+			{Key: "path", Value: "$order_items.product"},
+			{Key: "preserveNullAndEmptyArrays", Value: true},
+		}}},
+
+		{{Key: "$lookup", Value: bson.D{
+			{Key: "from", Value: "reviews"},
+			{Key: "localField", Value: "order_items.product.reviews"},
+			{Key: "foreignField", Value: "_id"},
+			{Key: "as", Value: "order_items.product.reviews"},
+		}}},
+		{{Key: "$unwind", Value: bson.D{
+			{Key: "path", Value: "$order_items.product.reviews"},
+			{Key: "preserveNullAndEmptyArrays", Value: true},
+		}}},
+		{{Key: "$lookup", Value: bson.D{
+			{Key: "from", Value: "categories"},
+			{Key: "localField", Value: "order_items.product.category"},
+			{Key: "foreignField", Value: "_id"},
+			{Key: "as", Value: "order_items.product.category"},
+		}}},
+		{{Key: "$unwind", Value: bson.D{
+			{Key: "path", Value: "$order_items.product.category"},
+			{Key: "preserveNullAndEmptyArrays", Value: true},
+		}}},
+
+		// Group back to reconstruct order_items array
+		{{Key: "$group", Value: bson.D{
+			{Key: "_id", Value: "$_id"},
+			{Key: "shipping_address", Value: bson.D{{Key: "$first", Value: "$shipping_address"}}},
+			{Key: "city", Value: bson.D{{Key: "$first", Value: "$city"}}},
+			{Key: "postal_code", Value: bson.D{{Key: "$first", Value: "$postal_code"}}},
+			{Key: "country", Value: bson.D{{Key: "$first", Value: "$country"}}},
+			{Key: "phone", Value: bson.D{{Key: "$first", Value: "$phone"}}},
+			{Key: "payment_id", Value: bson.D{{Key: "$first", Value: "$payment_id"}}},
+			{Key: "status", Value: bson.D{{Key: "$first", Value: "$status"}}},
+			{Key: "total_price", Value: bson.D{{Key: "$first", Value: "$total_price"}}},
+			{Key: "date_ordered", Value: bson.D{{Key: "$first", Value: "$date_ordered"}}},
+			{Key: "user", Value: bson.D{{Key: "$first", Value: "$user"}}},
+			{Key: "order_items", Value: bson.D{{Key: "$push", Value: "$order_items"}}},
+		}}},
+	}
+
+	cursor, err := collection.Aggregate(ctx, pipeline)
 	if err != nil {
 		return nil, err
 	}
 	defer cursor.Close(ctx)
 
-	var orders []models.Order
-	for cursor.Next(ctx) {
-		var order models.Order
-		if err := cursor.Decode(&order); err != nil {
-			return nil, err
-		}
-		orders = append(orders, order)
-	}
-
-	if err := cursor.Err(); err != nil {
+	var orders []models.OrderResponse
+	if err := cursor.All(ctx, &orders); err != nil {
 		return nil, err
 	}
-
 	return orders, nil
 }
 
@@ -110,3 +179,7 @@ func (r *orderRepository) DeleteCartByUserId(userId primitive.ObjectID) error {
 	_, err := collection.DeleteMany(context.Background(), filter)
 	return err
 }
+
+func (r *userRepository) FindOrderById() models.Order
+
+func (r *orderRepository) UpdateOrder()

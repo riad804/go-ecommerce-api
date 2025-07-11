@@ -135,7 +135,7 @@ func (s *AdminService) DeleteCategory(id string) (int, error) {
 // func (s *AdminService) DeleteProduct() error {
 // }
 
-func (s *AdminService) GetOrders() ([]models.Order, int, error) {
+func (s *AdminService) GetOrders() ([]models.OrderResponse, int, error) {
 	orders, err := s.orderRepo.FindAllOrders()
 	if err != nil {
 		return nil, fiber.StatusInternalServerError, err
@@ -143,8 +143,17 @@ func (s *AdminService) GetOrders() ([]models.Order, int, error) {
 	return orders, fiber.StatusOK, nil
 }
 
-// func (s *AdminService) GetOrderCount() error {
-// }
+func (s *AdminService) GetOrderCount() (*int64, int, error) {
+	count, err := s.orderRepo.FindOrdersCount()
+	if err != nil {
+		return nil, fiber.StatusInternalServerError, err
+	}
+	return count, fiber.StatusOK, nil
+}
 
-// func (s *AdminService) ChangeOrderStatus() error {
-// }
+func (s *AdminService) ChangeOrderStatus(id string) (int, error) {
+	obId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return fiber.StatusBadRequest, fmt.Errorf("invalid user id")
+	}
+}

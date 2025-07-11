@@ -40,7 +40,7 @@ func NewMongoDB(cfg *config.Config) (*MongoConnection, error) {
 	if err != nil {
 		log.Fatal("Users indexing failed:", err)
 	}
-	err = models.EnsureProductIndexes(db.Collection("products"))
+	err = models.EnsureProductIndexes(db.Collection(repositories.PRODUCTS))
 	if err != nil {
 		log.Fatal("Products indexing failed:", err)
 	}

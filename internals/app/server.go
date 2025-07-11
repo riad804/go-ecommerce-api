@@ -52,6 +52,7 @@ func NewServer(config *config.Config, redisClient *redis.RedisClient, mongoConn 
 	routes := routes.NewRoutes(config, app, mongoConn, distributor)
 	routes.NewAuthRoutes()
 	routes.NewUserRoutes()
+	routes.NewAdminRoutes()
 
 	return &Server{
 		config: config,
@@ -105,4 +106,6 @@ func (s *Server) DeleteOldCategories() {
 			fmt.Println("deleted category Id:", cat.ID)
 		}
 	}
+
+	log.Println("running cron job for deleting categories")
 }

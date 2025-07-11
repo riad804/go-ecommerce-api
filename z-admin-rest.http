@@ -1,0 +1,12 @@
+@baseUrl = http://localhost:8080/api/v1/admin
+@accessToken = Bearer v2.local.o5VxA4bgeJgwtHAdtGsFjurQMo2byVTBVn9EjtPlEHuprrD-TAxM9aJXQ0R_fegCiJgaSStLYKX2omfmK7eM4ETgdDrTH-h2iwQHnCqyV9GgyRBpsE0zuWaoJMUZyJc6y15nVoR2W-RNVFr1XPPJNDtcckj0i6pU5LtV-DBIq-0Ug_4YJwpVX1HZmKOYWgR-SWezgIDPHeXbVJoUoptc7i53xsHJnSYGkjEBaQ612hCIcb76dR52fkBYtTLVTf9gfO1qoGmLafKDsTC2-Wb3iOvCQFgYnZnkyZNMtLj-Lonpn7HpZJoht2n34Z3QRM0yaw6rgyc.bnVsbA
+
+### Get User count
+GET {{baseUrl}}/users/count
+Authorization: {{accessToken}}
+Content-Type: application/json
+
+
+### Get User count
+GET {{baseUrl}}/orders
+Content-Type: application/json

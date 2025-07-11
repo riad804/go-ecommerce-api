@@ -13,7 +13,7 @@ import (
 type User struct {
 	ID                      primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	Name                    string             `bson:"name" json:"name" validate:"required"`
-	Email                   string             `bson:"email" json:"email" validate:"required,email"` // Unique index should be set in DB
+	Email                   string             `bson:"email" json:"email" validate:"required,email"`
 	Password                string             `bson:"password" json:"-" validate:"required"`
 	Street                  *string            `bson:"street,omitempty" json:"street,omitempty"`
 	Apartment               *string            `bson:"apartment,omitempty" json:"apartment,omitempty"`

@@ -78,9 +78,9 @@ func (p *Product) getReviews(ctx context.Context, db *mongo.Database) []Review {
 
 func EnsureProductIndexes(collection *mongo.Collection) error {
 	mod := mongo.IndexModel{
-		Keys: bson.M{
-			"name":        1,
-			"description": 1,
+		Keys: bson.D{
+			{Key: "name", Value: 1},
+			{Key: "description", Value: 1},
 		},
 		Options: options.Index(),
 	}

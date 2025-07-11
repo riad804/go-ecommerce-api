@@ -116,8 +116,13 @@ func (h *AdminhHandler) GetOrders(c *fiber.Ctx) error {
 	return models.Success(c, status, "success", orders)
 }
 
-// func (h *AdminhHandler) GetOrderCount(c *fiber.Ctx) error {
-// }
+func (h *AdminhHandler) GetOrderCount(c *fiber.Ctx) error {
+	count, status, err := h.adminService.GetOrderCount()
+	if err != nil {
+		return models.Error(c, status, err.Error())
+	}
+	return models.Success(c, status, "success", count)
+}
 
 // func (h *AdminhHandler) ChangeOrderStatus(c *fiber.Ctx) error {
 // }

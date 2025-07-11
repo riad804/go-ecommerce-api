@@ -15,17 +15,16 @@ func (routes *Routes) NewAdminRoutes() {
 	adminHandler := handlers.NewAdminHandler(adminService, routes.Validator)
 
 	authMiddleware := middlewares.AuthMiddleware(*routes.tokenMaker)
-	api := routes.api.Group("/admin", authMiddleware)
-
 	imageMiddleware := middlewares.ImageMiddleware()
-	imageAPI := api.Use(imageMiddleware)
+
+	api := routes.api.Group("/admin", authMiddleware)
 
 	//users
 	api.Get("/users/count", adminHandler.GetUserCount)
 	api.Delete("/users/:id", adminHandler.DeleteUser)
 
 	// categories
-	imageAPI.Post("/categories", adminHandler.AddCategory)
+	api.Post("/categories", imageMiddleware, adminHandler.AddCategory)
 	api.Put("/categories/:id", adminHandler.EditCategory)
 	api.Delete("/categories/:id", adminHandler.DeleteCategory)
 

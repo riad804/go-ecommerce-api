@@ -1,6 +1,7 @@
 package middlewares
 
 import (
+	"regexp"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
@@ -25,6 +26,12 @@ func AuthMiddleware(tokenMaker token.Maker) fiber.Handler {
 		payload, err := tokenMaker.VerifyAccessToken(accessToken)
 		if err != nil {
 			return models.Error(c, fiber.StatusUnauthorized, "Invalid access token")
+		}
+
+		path := c.OriginalURL()
+		adminPathRegex := regexp.MustCompile(`^/api/v1/admin/.*`)
+		if !payload.IsAdmin && adminPathRegex.MatchString(path) {
+			return models.Error(c, fiber.StatusUnauthorized, "access token is not for admin")
 		}
 
 		c.Locals("email", payload.Email)
