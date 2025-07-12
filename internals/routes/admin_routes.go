@@ -29,14 +29,15 @@ func (routes *Routes) NewAdminRoutes() {
 	api.Delete("/categories/:id", adminHandler.DeleteCategory)
 
 	//products
-	// api.Get("/products/count", adminHandler.GetProductsCount)
-	// api.Post("/products/count", adminHandler.AddProduct)
-	// api.Put("/products/:id", adminHandler.EditProduct)
-	// api.Delete("/products/:id/images", adminHandler.DeleteProductImages)
-	// api.Delete("/products/:id", adminHandler.DeleteProduct)
+	api.Get("/products/count", adminHandler.GetProductsCount)
+	api.Post("/products/count", adminHandler.AddProduct)
+	api.Put("/products/:id", adminHandler.EditProduct)
+	api.Delete("/products/:id/images", adminHandler.DeleteProductImages)
+	api.Delete("/products/:id", adminHandler.DeleteProduct)
 
 	//orders
 	api.Get("/orders", adminHandler.GetOrders)
-	// api.Get("/orders/count", adminHandler.GetOrderCount)
-	// api.Put("/orders/:id", adminHandler.ChangeOrderStatus)
+	api.Get("/orders/count", adminHandler.GetOrderCount)
+	api.Put("/orders/:id", adminHandler.ChangeOrderStatus)
+	api.Delete("/orders/:id", adminHandler.DeleteOrder)
 }

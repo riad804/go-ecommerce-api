@@ -22,3 +22,12 @@ func Reduce[T any, R any](arr []T, initial R, fn func(R, T) R) R {
 	}
 	return result
 }
+
+func Contains[T comparable](list []T, target T) bool {
+	for _, item := range list {
+		if item == target {
+			return true
+		}
+	}
+	return false
+}

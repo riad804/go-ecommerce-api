@@ -124,5 +124,21 @@ func (h *AdminhHandler) GetOrderCount(c *fiber.Ctx) error {
 	return models.Success(c, status, "success", count)
 }
 
-// func (h *AdminhHandler) ChangeOrderStatus(c *fiber.Ctx) error {
-// }
+func (h *AdminhHandler) ChangeOrderStatus(c *fiber.Ctx) error {
+	id := c.Params("id")
+	status := c.FormValue("status")
+	result, err := h.adminService.ChangeOrderStatus(id, models.OrderStatus(status))
+	if err != nil {
+		return models.Error(c, result, err.Error())
+	}
+	return models.Success(c, result, "success", nil)
+}
+
+func (h *AdminhHandler) DeleteOrder(c *fiber.Ctx) error {
+	id := c.Params("id")
+	status, err := h.adminService.DeleteOrder(id)
+	if err != nil {
+		return models.Error(c, status, err.Error())
+	}
+	return models.Success(c, status, "Deleted successfully", nil)
+}

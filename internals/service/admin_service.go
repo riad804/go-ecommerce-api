@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/riad804/go_ecommerce_api/helpers"
 	"github.com/riad804/go_ecommerce_api/internals/config"
 	"github.com/riad804/go_ecommerce_api/internals/models"
 	"github.com/riad804/go_ecommerce_api/internals/repositories"
@@ -151,9 +152,37 @@ func (s *AdminService) GetOrderCount() (*int64, int, error) {
 	return count, fiber.StatusOK, nil
 }
 
-func (s *AdminService) ChangeOrderStatus(id string) (int, error) {
+func (s *AdminService) ChangeOrderStatus(id string, status models.OrderStatus) (int, error) {
 	obId, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return fiber.StatusBadRequest, fmt.Errorf("invalid user id")
 	}
+	order, err := s.orderRepo.FindOrderById(obId)
+	if err != nil {
+		return fiber.StatusNotFound, fmt.Errorf("Order not found")
+	}
+	if !helpers.Contains(order.StatusHistory, order.Status) {
+		order.StatusHistory = append(order.StatusHistory, order.Status)
+	}
+	order.Status = status
+	_, err = s.orderRepo.UpdateOrder(*order)
+	if err != nil {
+		return fiber.StatusInternalServerError, err
+	}
+	return fiber.StatusAccepted, nil
+}
+
+func (s *AdminService) DeleteOrder(id string) (int, error) {
+	obId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return fiber.StatusBadRequest, fmt.Errorf("invalid user id")
+	}
+	result := s.orderRepo.DeleteOrderById(obId)
+	if err := result.Err(); err != nil {
+		return fiber.StatusNotFound, err
+	}
+	var order models.Order
+	result.Decode(order)
+	s.orderRepo.DeleteOrderItems(order.OrderItems)
+	return fiber.StatusNoContent, nil
 }

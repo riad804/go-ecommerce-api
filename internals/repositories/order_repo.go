@@ -2,8 +2,10 @@ package repositories
 
 import (
 	"context"
+	"fmt"
 	"time"
 
+	"github.com/riad804/go_ecommerce_api/helpers"
 	"github.com/riad804/go_ecommerce_api/internals/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -21,6 +23,9 @@ type OrderRepository interface {
 	DeleteOrderByUserId(userId primitive.ObjectID) error
 	DeleteOrderItems(ids []primitive.ObjectID) error
 	DeleteCartByUserId(userId primitive.ObjectID) error
+	FindOrderById(id primitive.ObjectID) (*models.Order, error)
+	UpdateOrder(order models.Order) (*models.Order, error)
+	DeleteOrderById(id primitive.ObjectID) *mongo.SingleResult
 }
 
 type orderRepository struct {
@@ -180,6 +185,30 @@ func (r *orderRepository) DeleteCartByUserId(userId primitive.ObjectID) error {
 	return err
 }
 
-func (r *userRepository) FindOrderById() models.Order
+func (r *orderRepository) FindOrderById(id primitive.ObjectID) (*models.Order, error) {
+	collection := r.db.Collection(ORDERS)
+	var order models.Order
+	err := collection.FindOne(context.Background(), bson.M{"_id": id}).Decode(&order)
+	return &order, err
+}
 
-func (r *orderRepository) UpdateOrder()
+func (r *orderRepository) UpdateOrder(order models.Order) (*models.Order, error) {
+	collection := r.db.Collection(ORDERS)
+	filter := bson.M{"_id": order.ID}
+	data, err := helpers.StructToBsonMap(order)
+	if err != nil {
+		return nil, fmt.Errorf("couldn't parse user model to bson")
+	}
+	update := bson.M{
+		"$set": data,
+	}
+	_, err = collection.UpdateOne(context.Background(), filter, update)
+	return &order, err
+}
+
+func (r *orderRepository) DeleteOrderById(id primitive.ObjectID) *mongo.SingleResult {
+	collection := r.db.Collection(ORDERS)
+	filter := bson.M{"_id": id}
+	result := collection.FindOneAndDelete(context.Background(), filter)
+	return result
+}
