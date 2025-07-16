@@ -46,7 +46,7 @@ type Review struct {
 
 func (p *Product) Pre(ctx context.Context, db *mongo.Database) Product {
 	if len(p.Reviews) > 0 {
-		reviews := p.getReviews(ctx, db)
+		reviews := p.GetReviews(ctx, db)
 
 		totalRating := helpers.Reduce(reviews, 0, func(acc int, val Review) int {
 			return acc + val.Rating
@@ -57,7 +57,7 @@ func (p *Product) Pre(ctx context.Context, db *mongo.Database) Product {
 	return *p
 }
 
-func (p *Product) getReviews(ctx context.Context, db *mongo.Database) []Review {
+func (p *Product) GetReviews(ctx context.Context, db *mongo.Database) []Review {
 	var reviews []Review
 	cursor, err := db.Collection("reviews").Find(ctx, bson.M{
 		"_id": bson.M{"$in": p.Reviews},
@@ -86,4 +86,28 @@ func EnsureProductIndexes(collection *mongo.Collection) error {
 	}
 	_, err := collection.Indexes().CreateOne(context.Background(), mod)
 	return err
+}
+
+type ProductCreateRequest struct {
+	CategoryId        string    `form:"category_id" validate:"required"`
+	Name              string    `form:"name" validate:"required"`
+	Description       string    `form:"description" validate:"required"`
+	Price             float64   `form:"price" validate:"required"`
+	Colors            []string  `form:"colors" validate:"required"`
+	Sizes             []string  `form:"sizes" validate:"required"`
+	GenderAgeCategory GenderAge `form:"gender_age_category" validate:"required"`
+	CountInStock      int       `form:"stock" validate:"required"`
+}
+
+type ProductUpdateRequest struct {
+	CategoryId        *string    `form:"category_id"`
+	Name              *string    `form:"name"`
+	Description       *string    `form:"description"`
+	Price             *float64   `form:"price"`
+	Colors            *[]string  `form:"colors"`
+	Sizes             *[]string  `form:"sizes"`
+	GenderAgeCategory *GenderAge `form:"gender_age_category"`
+	CountInStock      *int       `form:"stock"`
+	ImageUrl          *string
+	Gallery           *[]string
 }

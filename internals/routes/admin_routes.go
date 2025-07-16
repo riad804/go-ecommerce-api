@@ -15,7 +15,6 @@ func (routes *Routes) NewAdminRoutes() {
 	adminHandler := handlers.NewAdminHandler(adminService, routes.Validator)
 
 	authMiddleware := middlewares.AuthMiddleware(*routes.tokenMaker)
-	imageMiddleware := middlewares.ImageMiddleware()
 
 	api := routes.api.Group("/admin", authMiddleware)
 
@@ -24,13 +23,14 @@ func (routes *Routes) NewAdminRoutes() {
 	api.Delete("/users/:id", adminHandler.DeleteUser)
 
 	// categories
-	api.Post("/categories", imageMiddleware, adminHandler.AddCategory)
+	api.Post("/categories", adminHandler.AddCategory)
 	api.Put("/categories/:id", adminHandler.EditCategory)
 	api.Delete("/categories/:id", adminHandler.DeleteCategory)
 
 	//products
 	api.Get("/products/count", adminHandler.GetProductsCount)
-	api.Post("/products/count", adminHandler.AddProduct)
+	api.Get("/products", adminHandler.GetProducts)
+	api.Post("/products", adminHandler.AddProduct)
 	api.Put("/products/:id", adminHandler.EditProduct)
 	api.Delete("/products/:id/images", adminHandler.DeleteProductImages)
 	api.Delete("/products/:id", adminHandler.DeleteProduct)

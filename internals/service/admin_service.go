@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/riad804/go_ecommerce_api/helpers"
@@ -121,20 +122,122 @@ func (s *AdminService) DeleteCategory(id string) (int, error) {
 	return fiber.StatusNoContent, nil
 }
 
-// func (s *AdminService) GetProductsCount() error {
-// }
+func (s *AdminService) GetProductsCount() (*int64, int, error) {
+	count, err := s.productRepo.CountAllProducts()
+	if err != nil {
+		return nil, fiber.StatusInternalServerError, err
+	}
+	return &count, fiber.StatusOK, nil
+}
 
-// func (s *AdminService) AddProduct() error {
-// }
+func (s *AdminService) GetProductDetails() error {
+	return nil //todo implementation
+}
 
-// func (s *AdminService) EditProduct() error {
-// }
+func (s *AdminService) AddProduct(req models.ProductCreateRequest, image string, gallery []string) (*models.Product, int, error) {
+	obId, err := primitive.ObjectIDFromHex(req.CategoryId)
+	if err != nil {
+		return nil, fiber.StatusBadRequest, fmt.Errorf("invalid category id")
+	}
+	category, err := s.productRepo.CategoryFindOne(obId)
+	if err != nil {
+		return nil, fiber.StatusNotFound, fmt.Errorf("invalid category")
+	}
+	if category.MarkedForDelete {
+		return nil, fiber.StatusNotFound, fmt.Errorf("Category marked for deletion, you cannot add products to this category.")
+	}
+	product := models.Product{
+		Name:              req.Name,
+		Description:       req.Description,
+		Price:             req.Price,
+		Colors:            req.Colors,
+		Image:             image,
+		Images:            gallery,
+		Sizes:             req.Sizes,
+		GenderAgeCategory: req.GenderAgeCategory,
+		CountInStock:      req.CountInStock,
+		DateAdded:         time.Now(),
+	}
+	product.Category = append(product.Category, obId)
 
-// func (s *AdminService) DeleteProductImages() error {
-// }
+	result, err := s.productRepo.ProductSave(product)
+	if err != nil {
+		return nil, fiber.StatusInternalServerError, err
+	}
+	oid, ok := result.InsertedID.(primitive.ObjectID)
+	if !ok {
+		return nil, fiber.StatusInternalServerError, fmt.Errorf("InsertedID is not an ObjectID")
+	}
+	productResult, err := s.productRepo.ProductFindOne(oid)
+	if err != nil {
+		return nil, fiber.StatusNotFound, fmt.Errorf("Product not found after created")
+	}
+	return productResult, fiber.StatusCreated, nil
+}
 
-// func (s *AdminService) DeleteProduct() error {
-// }
+func (s *AdminService) EditProduct(id string, req models.ProductUpdateRequest) (*models.Product, int, error) {
+	obId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return nil, fiber.StatusBadRequest, fmt.Errorf("invalid product id")
+	}
+	if req.CategoryId != nil {
+		catId, err := primitive.ObjectIDFromHex(*req.CategoryId)
+		if err != nil {
+			return nil, fiber.StatusBadRequest, fmt.Errorf("invalid category id")
+		}
+		category, err := s.productRepo.CategoryFindOne(catId)
+		if err != nil {
+			return nil, fiber.StatusNotFound, fmt.Errorf("invalid category")
+		}
+		if category.MarkedForDelete {
+			return nil, fiber.StatusNotFound, fmt.Errorf("Category marked for deletion, you cannot add products to this category.")
+		}
+	}
+	product, err := s.productRepo.ProductFindOne(obId)
+	if err != nil {
+		return nil, fiber.StatusNotFound, err
+	}
+	if req.Name != nil {
+		product.Name = *req.Name
+	}
+	if req.Description != nil {
+		product.Description = *req.Description
+	}
+	if req.Price != nil {
+		product.Price = *req.Price
+	}
+	if req.Colors != nil {
+		product.Colors = *req.Colors
+	}
+	if req.Sizes != nil {
+		product.Sizes = *req.Sizes
+	}
+	if req.GenderAgeCategory != nil {
+		product.GenderAgeCategory = *req.GenderAgeCategory
+	}
+	if req.CountInStock != nil {
+		product.CountInStock = *req.CountInStock
+	}
+	if req.ImageUrl != nil {
+		product.Image = *req.ImageUrl
+	}
+	if req.Gallery != nil {
+		product.Images = *req.Gallery
+	}
+	updatedProduct, err := s.productRepo.ProductUpdate(*product)
+	if err != nil {
+		return nil, fiber.StatusInternalServerError, err
+	}
+	return updatedProduct, fiber.StatusAccepted, nil
+}
+
+func (s *AdminService) DeleteProductImages() error {
+	return nil //todo implementation
+}
+
+func (s *AdminService) DeleteProduct() error {
+	return nil //todo implementation
+}
 
 func (s *AdminService) GetOrders() ([]models.OrderResponse, int, error) {
 	orders, err := s.orderRepo.FindAllOrders()
@@ -182,7 +285,13 @@ func (s *AdminService) DeleteOrder(id string) (int, error) {
 		return fiber.StatusNotFound, err
 	}
 	var order models.Order
-	result.Decode(order)
-	s.orderRepo.DeleteOrderItems(order.OrderItems)
+	err = result.Decode(order)
+	if err != nil {
+		return fiber.StatusInternalServerError, fmt.Errorf("order decoding failed")
+	}
+	err = s.orderRepo.DeleteOrderItems(order.OrderItems)
+	if err != nil {
+		return fiber.StatusInternalServerError, err
+	}
 	return fiber.StatusNoContent, nil
 }
